@@ -91,7 +91,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\veyro\Documents\Visual Studio 2019\Libraries\stb-master;C:\VulkanSDK\1.2.135.0\Include;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glm;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glfw-3.3.2.bin.WIN64\include;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glfw-3.3.2.bin.WIN64\include;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glm;C:\VulkanSDK\1.2.135.0\Include;%(AdditionalIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\veyro\Documents\Visual Studio 2019\Libraries\tinyobjloader-master;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\stb-master;C:\VulkanSDK\1.2.135.0\Include;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glm;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glfw-3.3.2.bin.WIN64\include;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glfw-3.3.2.bin.WIN64\include;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glm;C:\VulkanSDK\1.2.135.0\Include;%(AdditionalIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -110,7 +110,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\veyro\Documents\Visual Studio 2019\Libraries\stb-master;C:\VulkanSDK\1.2.135.0\Include;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glm;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glfw-3.3.2.bin.WIN64\include;C:\Users\veyro\Documents\Visual Studio 2017\Libraries\glfw-3.3.2\include;C:\Users\veyro\Documents\Visual Studio 2017\Libraries\glm;C:\VulkanSDK\1.2.135.0\Include;%(AdditionalIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\veyro\Documents\Visual Studio 2019\Libraries\tinyobjloader-master;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\stb-master;C:\VulkanSDK\1.2.135.0\Include;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glm;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glfw-3.3.2.bin.WIN64\include;C:\Users\veyro\Documents\Visual Studio 2017\Libraries\glfw-3.3.2\include;C:\Users\veyro\Documents\Visual Studio 2017\Libraries\glm;C:\VulkanSDK\1.2.135.0\Include;%(AdditionalIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -131,7 +131,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\veyro\Documents\Visual Studio 2019\Libraries\stb-master;C:\VulkanSDK\1.2.135.0\Include;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glm;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glfw-3.3.2.bin.WIN64\include;C:\Users\veyro\Documents\Visual Studio 2017\Libraries\glfw-3.3.2\include;C:\Users\veyro\Documents\Visual Studio 2017\Libraries\glm;C:\VulkanSDK\1.2.135.0\Include;%(AdditionalIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\veyro\Documents\Visual Studio 2019\Libraries\tinyobjloader-master;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\stb-master;C:\VulkanSDK\1.2.135.0\Include;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glm;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glfw-3.3.2.bin.WIN64\include;C:\Users\veyro\Documents\Visual Studio 2017\Libraries\glfw-3.3.2\include;C:\Users\veyro\Documents\Visual Studio 2017\Libraries\glm;C:\VulkanSDK\1.2.135.0\Include;%(AdditionalIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -154,7 +154,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\veyro\Documents\Visual Studio 2019\Libraries\stb-master;C:\VulkanSDK\1.2.135.0\Include;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glm;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glfw-3.3.2.bin.WIN64\include;C:\Users\veyro\Documents\Visual Studio 2017\Libraries\glfw-3.3.2\include;C:\Users\veyro\Documents\Visual Studio 2017\Libraries\glm;C:\VulkanSDK\1.2.135.0\Include;%(AdditionalIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\veyro\Documents\Visual Studio 2019\Libraries\tinyobjloader-master;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\stb-master;C:\VulkanSDK\1.2.135.0\Include;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glm;C:\Users\veyro\Documents\Visual Studio 2019\Libraries\glfw-3.3.2.bin.WIN64\include;C:\Users\veyro\Documents\Visual Studio 2017\Libraries\glfw-3.3.2\include;C:\Users\veyro\Documents\Visual Studio 2017\Libraries\glm;C:\VulkanSDK\1.2.135.0\Include;%(AdditionalIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -180,11 +180,17 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico" />
+    <Image Include="textures\bernstein.jpg" />
+    <Image Include="textures\texture.jpg" />
+    <Image Include="textures\viking_room.png" />
     <Image Include="VulkanTest.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.frag" />
     <None Include="shaders\shader.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="models\viking_room.obj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

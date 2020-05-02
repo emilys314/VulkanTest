@@ -16,6 +16,12 @@
     <Filter Include="Source Files\shaders">
       <UniqueIdentifier>{d2cf56ad-57c3-4e68-b202-050868270083}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\textures">
+      <UniqueIdentifier>{67997e58-8c72-470f-bbbd-26de9be2ad28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\models">
+      <UniqueIdentifier>{df1ac855-c163-4a9a-8f07-b806f4e49203}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -48,6 +54,15 @@
     <Image Include="VulkanTest.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="textures\bernstein.jpg">
+      <Filter>Source Files\textures</Filter>
+    </Image>
+    <Image Include="textures\texture.jpg">
+      <Filter>Source Files\textures</Filter>
+    </Image>
+    <Image Include="textures\viking_room.png">
+      <Filter>Source Files\textures</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.vert">
@@ -56,5 +71,10 @@
     <None Include="shaders\shader.frag">
       <Filter>Source Files\shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="models\viking_room.obj">
+      <Filter>Source Files\models</Filter>
+    </Object>
   </ItemGroup>
 </Project>
