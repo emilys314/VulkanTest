@@ -129,29 +129,20 @@ private:
 	std::vector<VkFence> inFlightFences;		// to sync cpu / gpu
 	std::vector<VkFence> imagesInFlight;		// keep images in order
 
-	//VkBuffer vertexBuffer1;
-	//VkDeviceMemory vertexBufferMemory1;		// gpu memory for vertexBuffer
-	//VkBuffer indexBuffer1;
-	//VkDeviceMemory indexBufferMemory1;
-	//std::vector<VkBuffer> uniformBuffers1;
-	//std::vector<VkDeviceMemory> uniformBuffersMemory1;
-	//VkDescriptorPool descriptorPool1;
-	//std::vector<VkDescriptorSet> descriptorSets1;	// specifies uniforms for rendering object (MVP and texture) / implicitly freed
-
-	//VkImage textureImage1;						// more efficient to use image than buffer for textures
-	//VkDeviceMemory textureImageMemory1;
-	//VkImageView textureImageView1;
-	//VkSampler textureSampler1;
-
 	std::vector<RenderObject> renderObjects;
 
 	VkImage depthImage;
 	VkDeviceMemory depthImageMemory;
 	VkImageView depthImageView;
 
-	//uint32_t indexCount;
+	float zoomLevel = 3.0f;
+	int whichMolecule = 0;
 
 	bool framebufferResized = false;		// flag if window resized (will recreate swapchain)
+	bool keysHeld[1024];
+
+	std::chrono::steady_clock::time_point prevTime;
+	std::chrono::steady_clock::time_point currTime;
 
 
 	// initialize desktop window (glfw)
@@ -164,11 +155,26 @@ private:
 		window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 		glfwSetWindowUserPointer(window, this);
 		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+		glfwSetKeyCallback(window, key_callback);
 	}
 
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
 		auto app = reinterpret_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
 		app->framebufferResized = true;
+	}
+
+	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+		auto app = reinterpret_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
+		if (key >= 0 && key < 1024)
+		{
+			if (action == GLFW_PRESS)
+			{
+				app->keysHeld[key] = true;
+			}
+			else if (action == GLFW_RELEASE)
+				app->keysHeld[key] = false;
+		}
 	}
 
 	// initialize vulkan library 
@@ -185,55 +191,54 @@ private:
 		createCommandPool();
 		createDepthResources();
 		createFramebuffers();
-
-		//renderObjects.resize(1);
-
-		//createTextureImage(renderObjects[0].textureImage, renderObjects[0].textureImageMemory, "textures/water_texture.png");
-		//createTextureImageView(renderObjects[0].textureImageView, renderObjects[0].textureImage);
-		//createTextureSampler(renderObjects[0].textureSampler);
-
-		//loadModel(renderObjects[0].vertices, renderObjects[0].indices, "models/water.obj");
-		//createVertexBuffer(renderObjects[0].vertexBuffer, renderObjects[0].vertexBufferMemory, renderObjects[0].vertices);
-		//createIndexBuffer(renderObjects[0].indexBuffer, renderObjects[0].indexBufferMemory, renderObjects[0].indices);
-		//indexCount = static_cast<uint32_t>(renderObjects[0].indices.size());
-		//createUniformBuffers(renderObjects[0].uniformBuffers, renderObjects[0].uniformBuffersMemory);
-		//createDescriptorPool(renderObjects[0].descriptorPool);
-		//createDescriptorSets(renderObjects[0].descriptorSets, renderObjects[0].descriptorPool, renderObjects[0].uniformBuffers, renderObjects[0].textureImageView, renderObjects[0].textureSampler);
-
-		RenderObject renderObject1;
-		createTextureImage(renderObject1.textureImage, renderObject1.textureImageMemory, "textures/water_texture.png");
-		createTextureImageView(renderObject1.textureImageView, renderObject1.textureImage);
-		createTextureSampler(renderObject1.textureSampler);
-		loadModel(renderObject1.vertices, renderObject1.indices, "models/water.obj");
-		createVertexBuffer(renderObject1.vertexBuffer, renderObject1.vertexBufferMemory, renderObject1.vertices);
-		createIndexBuffer(renderObject1.indexBuffer, renderObject1.indexBufferMemory, renderObject1.indices);
-		createUniformBuffers(renderObject1.uniformBuffers, renderObject1.uniformBuffersMemory);
-		createDescriptorPool(renderObject1.descriptorPool);
-		createDescriptorSets(renderObject1.descriptorSets, renderObject1.descriptorPool, renderObject1.uniformBuffers, renderObject1.textureImageView, renderObject1.textureSampler);
-		renderObject1.modelMatrix = glm::mat4(1.0f);
-		renderObjects.push_back(renderObject1);
-
-		RenderObject renderObject2;
-		createTextureImage(renderObject2.textureImage, renderObject2.textureImageMemory, "textures/quad.png");
-		createTextureImageView(renderObject2.textureImageView, renderObject2.textureImage);
-		createTextureSampler(renderObject2.textureSampler);
-		loadModel(renderObject2.vertices, renderObject2.indices, "models/quad.obj");
-		createVertexBuffer(renderObject2.vertexBuffer, renderObject2.vertexBufferMemory, renderObject2.vertices);
-		createIndexBuffer(renderObject2.indexBuffer, renderObject2.indexBufferMemory, renderObject2.indices);
-		createUniformBuffers(renderObject2.uniformBuffers, renderObject2.uniformBuffersMemory);
-		createDescriptorPool(renderObject2.descriptorPool);
-		createDescriptorSets(renderObject2.descriptorSets, renderObject2.descriptorPool, renderObject2.uniformBuffers, renderObject2.textureImageView, renderObject2.textureSampler);
-		renderObject2.modelMatrix = glm::mat4(1.0f);
-		renderObject2.modelMatrix = glm::rotate(renderObject2.modelMatrix, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		renderObject2.modelMatrix = glm::scale(renderObject2.modelMatrix, glm::vec3(0.2f));
-		renderObject2.modelMatrix = glm::translate(renderObject2.modelMatrix, glm::vec3(0.0, 2.0, 10.0));
-		//renderObject2.modelMatrix = glm::rotate(renderObject2.modelMatrix, glm::radians(45.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
-		renderObjects.push_back(renderObject2);
-
-		std::cout << "render objects size " << renderObjects.size() << "\n";
-
+		createResources();
 		createCommandBuffers();
 		createSyncObjects();
+	}
+
+	void createResources() {
+		RenderObject water_molecule = createRenderObject("models/water.obj", "textures/water_texture.png");
+		water_molecule.shouldRender = true;
+		renderObjects.push_back(water_molecule);
+
+		RenderObject water_desc = createRenderObject("models/quad.obj", "textures/water_desc.png");
+		water_desc.modelMatrix = glm::scale(water_desc.modelMatrix, glm::vec3(0.25f));
+		water_desc.modelMatrix = glm::translate(water_desc.modelMatrix, glm::vec3(0.0, -3.0, 0.0));
+		water_desc.shouldRender = true;
+		renderObjects.push_back(water_desc);
+
+		RenderObject propane_molecule = createRenderObject("models/propane.obj", "textures/propane_texture.png");
+		renderObjects.push_back(propane_molecule);
+
+		RenderObject propane_desc = createRenderObject("models/quad.obj", "textures/propane_desc.png");
+		propane_desc.modelMatrix = glm::scale(propane_desc.modelMatrix, glm::vec3(0.25f));
+		propane_desc.modelMatrix = glm::translate(propane_desc.modelMatrix, glm::vec3(0.0, -3.0, 0.0));
+		renderObjects.push_back(propane_desc);
+
+		RenderObject bernstein_molecule = createRenderObject("models/bernstein.obj", "textures/bernstein_texture.png");
+		renderObjects.push_back(bernstein_molecule);
+
+		RenderObject bernstein_desc = createRenderObject("models/quad.obj", "textures/bernstein_desc.png");
+		bernstein_desc.modelMatrix = glm::scale(bernstein_desc.modelMatrix, glm::vec3(0.25f));
+		bernstein_desc.modelMatrix = glm::translate(bernstein_desc.modelMatrix, glm::vec3(0.0, -3.0, 0.0));
+		renderObjects.push_back(bernstein_desc);
+
+		std::cout << "created " << renderObjects.size() << " render objects\n";
+	}
+
+	RenderObject createRenderObject(std::string modelPath, std::string texturePath) {
+		RenderObject renderObject;
+		createTextureImage(renderObject.textureImage, renderObject.textureImageMemory, texturePath);
+		createTextureImageView(renderObject.textureImageView, renderObject.textureImage);
+		createTextureSampler(renderObject.textureSampler);
+		loadModel(renderObject.vertices, renderObject.indices, modelPath);
+		createVertexBuffer(renderObject.vertexBuffer, renderObject.vertexBufferMemory, renderObject.vertices);
+		createIndexBuffer(renderObject.indexBuffer, renderObject.indexBufferMemory, renderObject.indices);
+		createUniformBuffers(renderObject.uniformBuffers, renderObject.uniformBuffersMemory);
+		createDescriptorPool(renderObject.descriptorPool);
+		createDescriptorSets(renderObject.descriptorSets, renderObject.descriptorPool, renderObject.uniformBuffers, renderObject.textureImageView, renderObject.textureSampler);
+		renderObject.modelMatrix = glm::mat4(1.0f);
+		return renderObject;
 	}
 
 	void mainLoop() {
@@ -245,16 +250,55 @@ private:
 		vkDeviceWaitIdle(device);
 	}
 
-	std::chrono::steady_clock::time_point prevTime;
-	std::chrono::steady_clock::time_point currTime;
-
 	void gameLogic() {
 		prevTime = currTime;
 		currTime = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration<float, std::chrono::seconds::period>(currTime - prevTime).count();
 
-		renderObjects[0].modelMatrix = glm::rotate(renderObjects[0].modelMatrix, time * glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		//renderObjects[1].modelMatrix = glm::rotate(renderObjects[1].modelMatrix, time * glm::radians(45.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+		if (keysHeld[GLFW_KEY_D])
+			renderObjects[whichMolecule].modelMatrix = glm::rotate(renderObjects[whichMolecule].modelMatrix, time * glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		if (keysHeld[GLFW_KEY_A])
+			renderObjects[whichMolecule].modelMatrix = glm::rotate(renderObjects[whichMolecule].modelMatrix, time * glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		if (keysHeld[GLFW_KEY_W])
+			renderObjects[whichMolecule].modelMatrix = glm::rotate(renderObjects[whichMolecule].modelMatrix, time * glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		if (keysHeld[GLFW_KEY_S])
+			renderObjects[whichMolecule].modelMatrix = glm::rotate(renderObjects[whichMolecule].modelMatrix, time * glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		if (keysHeld[GLFW_KEY_Q])
+			renderObjects[whichMolecule].modelMatrix = glm::rotate(renderObjects[whichMolecule].modelMatrix, time * glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		if (keysHeld[GLFW_KEY_E])
+			renderObjects[whichMolecule].modelMatrix = glm::rotate(renderObjects[whichMolecule].modelMatrix, time * glm::radians(-45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		if (keysHeld[GLFW_KEY_Z])
+			zoomLevel += 0.1;
+		if (keysHeld[GLFW_KEY_X])
+			zoomLevel -= 0.1;
+
+		if (keysHeld[GLFW_KEY_1]) {
+			renderObjects[0].shouldRender = true;
+			renderObjects[1].shouldRender = true;
+			renderObjects[2].shouldRender = false;
+			renderObjects[3].shouldRender = false;
+			renderObjects[4].shouldRender = false;
+			renderObjects[5].shouldRender = false;
+			whichMolecule = 0;
+		}
+		else if (keysHeld[GLFW_KEY_2]) {
+			renderObjects[0].shouldRender = false;
+			renderObjects[1].shouldRender = false;
+			renderObjects[2].shouldRender = true;
+			renderObjects[3].shouldRender = true;
+			renderObjects[4].shouldRender = false;
+			renderObjects[5].shouldRender = false;
+			whichMolecule = 2;
+		}
+		else if (keysHeld[GLFW_KEY_3]) {
+			renderObjects[0].shouldRender = false;
+			renderObjects[1].shouldRender = false;
+			renderObjects[2].shouldRender = false;
+			renderObjects[3].shouldRender = false;
+			renderObjects[4].shouldRender = true;
+			renderObjects[5].shouldRender = true;
+			whichMolecule = 4;
+		}
 	}
 
 	void drawFrame() {
@@ -277,7 +321,11 @@ private:
 		imagesInFlight[imageIndex] = inFlightFences[currentFrame];		// mark image as now being in use by this frame
 
 		updateUniformBuffer(imageIndex, renderObjects[0]);
-		updateUniformBuffer(imageIndex, renderObjects[1]);
+		updateUniformBufferUI(imageIndex, renderObjects[1]);
+		updateUniformBuffer(imageIndex, renderObjects[2]);
+		updateUniformBufferUI(imageIndex, renderObjects[3]);
+		updateUniformBuffer(imageIndex, renderObjects[4]);
+		updateUniformBufferUI(imageIndex, renderObjects[5]);
 		
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -323,13 +371,31 @@ private:
 	}
 
 	void updateUniformBuffer(uint32_t currentImage, RenderObject renderObject) {
-
 		UniformBufferObject ubo{};
-		//ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(degrees), glm::vec3(0.0f, 0.0f, 1.0f));
 		ubo.model = renderObject.modelMatrix;
-		ubo.view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		ubo.view = glm::lookAt(glm::vec3(0.0f, 0.0f, zoomLevel), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
 		ubo.proj[1][1] *= -1;	// was made for opengl which has Y coord inverted vs Vulkan
+
+		if (!renderObject.shouldRender)
+			ubo.model = glm::mat4(0.0f);
+
+		void* data;
+		vkMapMemory(device, renderObject.uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
+		memcpy(data, &ubo, sizeof(ubo));
+		vkUnmapMemory(device, renderObject.uniformBuffersMemory[currentImage]);
+	}
+
+	void updateUniformBufferUI(uint32_t currentImage, RenderObject renderObject) {
+		float aspect = (float)swapChainExtent.width / (float)swapChainExtent.height;
+		UniformBufferObject ubo{};
+		ubo.model = glm::rotate(renderObject.modelMatrix, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		ubo.view = glm::mat4(1.0f);
+		ubo.proj = glm::ortho(-aspect, aspect, -1.0f, 1.0f);
+		ubo.proj[1][1] *= -1;	// was made for opengl which has Y coord inverted vs Vulkan
+
+		if (!renderObject.shouldRender)
+			ubo.model = glm::mat4(0.0f);
 
 		void* data;
 		vkMapMemory(device, renderObject.uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
@@ -400,7 +466,6 @@ private:
 		appInfo.pEngineName = "No Engine";
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 		appInfo.apiVersion = VK_API_VERSION_1_0;
-		//appInfo.pNext = nullptr	//extension info (left to default)
 
 		VkInstanceCreateInfo createInfo = {};	//which global ext and avlidation layers to use
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -415,9 +480,6 @@ private:
 			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 			createInfo.ppEnabledLayerNames = validationLayers.data();
 		}
-		//else {
-		//	createInfo.enabledLayerCount = 0;
-		//}
 
 		if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
 			throw std::runtime_error("failed to create instance!");
@@ -652,7 +714,11 @@ private:
 		for (int i = 0; i < renderObjects.size(); i++) {
 			createUniformBuffers(renderObjects[i].uniformBuffers, renderObjects[i].uniformBuffersMemory);		// depends on number of swapchain images
 			createDescriptorPool(renderObjects[i].descriptorPool);		// depends on number of swapchain images
-			createDescriptorSets(renderObjects[i].descriptorSets, renderObjects[i].descriptorPool, renderObjects[i].uniformBuffers, renderObjects[i].textureImageView, renderObjects[i].textureSampler);		// depends on number of swapchain images
+			createDescriptorSets(renderObjects[i].descriptorSets, 
+				renderObjects[i].descriptorPool, 
+				renderObjects[i].uniformBuffers, 
+				renderObjects[i].textureImageView, 
+				renderObjects[i].textureSampler);		// depends on number of swapchain images
 		}
 		createCommandBuffers();		// depend directly on swapchain images
 	}
@@ -1431,18 +1497,15 @@ private:
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
 			VkBuffer vertexBuffers[] = { renderObjects[0].vertexBuffer };
-
 			VkDeviceSize offsets[] = { 0 };
-			vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-			vkCmdBindIndexBuffer(commandBuffers[i], renderObjects[0].indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &renderObjects[0].descriptorSets[i], 0, nullptr);
-			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(renderObjects[0].indices.size()) , 1, 0, 0, 0);
 
-			vertexBuffers[0] = renderObjects[1].vertexBuffer;
-			vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-			vkCmdBindIndexBuffer(commandBuffers[i], renderObjects[1].indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &renderObjects[1].descriptorSets[i], 0, nullptr);
-			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(renderObjects[1].indices.size()), 1, 0, 0, 0);
+			for (int x = 0; x < renderObjects.size(); x++) {
+				vertexBuffers[0] = renderObjects[x].vertexBuffer;
+				vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+				vkCmdBindIndexBuffer(commandBuffers[i], renderObjects[x].indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+				vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &renderObjects[x].descriptorSets[i], 0, nullptr);
+				vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(renderObjects[x].indices.size()), 1, 0, 0, 0);
+			}
 
 			vkCmdEndRenderPass(commandBuffers[i]);
 			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)

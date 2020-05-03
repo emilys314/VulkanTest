@@ -47,9 +47,6 @@
     <ClCompile Include="HelloTriangleApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RenderObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VulkanTest.rc">
@@ -63,16 +60,22 @@
     <Image Include="VulkanTest.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="textures\bernstein.jpg">
-      <Filter>Source Files\textures</Filter>
-    </Image>
-    <Image Include="textures\texture.jpg">
-      <Filter>Source Files\textures</Filter>
-    </Image>
-    <Image Include="textures\viking_room.png">
-      <Filter>Source Files\textures</Filter>
-    </Image>
     <Image Include="textures\water_texture.png">
+      <Filter>Source Files\textures</Filter>
+    </Image>
+    <Image Include="textures\bernstein_desc.png">
+      <Filter>Source Files\textures</Filter>
+    </Image>
+    <Image Include="textures\bernstein_texture.png">
+      <Filter>Source Files\textures</Filter>
+    </Image>
+    <Image Include="textures\propane_desc.png">
+      <Filter>Source Files\textures</Filter>
+    </Image>
+    <Image Include="textures\propane_texture.png">
+      <Filter>Source Files\textures</Filter>
+    </Image>
+    <Image Include="textures\water_desc.png">
       <Filter>Source Files\textures</Filter>
     </Image>
   </ItemGroup>
@@ -83,5 +86,19 @@
     <None Include="shaders\shader.frag">
       <Filter>Source Files\shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="models\propane.obj">
+      <Filter>Source Files\models</Filter>
+    </Object>
+    <Object Include="models\quad.obj">
+      <Filter>Source Files\models</Filter>
+    </Object>
+    <Object Include="models\water.obj">
+      <Filter>Source Files\models</Filter>
+    </Object>
+    <Object Include="models\bernstein.obj">
+      <Filter>Source Files\models</Filter>
+    </Object>
   </ItemGroup>
 </Project>

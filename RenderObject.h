@@ -28,5 +28,6 @@ struct RenderObject {
 	VkSampler textureSampler;
 
 	glm::mat4 modelMatrix;
+	bool shouldRender = false;
 };
 
