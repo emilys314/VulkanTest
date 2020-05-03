@@ -1,7 +1,6 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 //#include <vulkan/vulkan.h>
-
 #include <iostream>
 #include <stdexcept>
 #include <functional>	// lambda functions 
@@ -23,11 +22,14 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
+#include "Vertex.h"
+#include "RenderObject.h"
+
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
-const std::string MODEL_PATH = "models/viking_room.obj";
-const std::string TEXTURE_PATH = "textures/viking_room.png";
+//const std::string MODEL_PATH = "models/water.obj";
+//const std::string TEXTURE_PATH = "textures/water_texture.png";
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -43,56 +45,39 @@ const std::vector<const char*> deviceExtensions = {
 	const bool enableValidationLayers = true;
 #endif
 
-struct Vertex {
-	glm::vec3 pos;
-	glm::vec3 color;
-	glm::vec2 texCoord;
-
-	static VkVertexInputBindingDescription getBindingDescription() {
-		VkVertexInputBindingDescription bindingDescription{};
-		bindingDescription.binding = 0;			// start index
-		bindingDescription.stride = sizeof(Vertex);
-		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;		// move per vertex (or per instance)
-		return bindingDescription;
-	}
-
-	static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
-		std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
-
-		attributeDescriptions[0].binding = 0;
-		attributeDescriptions[0].location = 0;
-		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-		attributeDescriptions[0].offset = offsetof(Vertex, pos);
-
-		attributeDescriptions[1].binding = 0;
-		attributeDescriptions[1].location = 1;
-		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-		attributeDescriptions[1].offset = offsetof(Vertex, color);
-
-		attributeDescriptions[2].binding = 0;
-		attributeDescriptions[2].location = 2;
-		attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-		attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
-
-		return attributeDescriptions;
-	}
-};
-
-//const std::vector<Vertex> vertices = {
-//	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-//	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-//	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-//	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+//struct Vertex {
+//	glm::vec3 pos;
+//	glm::vec3 color;
+//	glm::vec2 texCoord;
 //
-//	{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-//	{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-//	{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-//	{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-//};
+//	static VkVertexInputBindingDescription getBindingDescription() {
+//		VkVertexInputBindingDescription bindingDescription{};
+//		bindingDescription.binding = 0;			// start index
+//		bindingDescription.stride = sizeof(Vertex);
+//		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;		// move per vertex (or per instance)
+//		return bindingDescription;
+//	}
 //
-//const std::vector<uint16_t> indices = {
-//	0, 1, 2, 2, 3, 0,
-//	4, 5, 6, 6, 7, 4
+//	static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
+//		std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
+//
+//		attributeDescriptions[0].binding = 0;
+//		attributeDescriptions[0].location = 0;
+//		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+//		attributeDescriptions[0].offset = offsetof(Vertex, pos);
+//
+//		attributeDescriptions[1].binding = 0;
+//		attributeDescriptions[1].location = 1;
+//		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+//		attributeDescriptions[1].offset = offsetof(Vertex, color);
+//
+//		attributeDescriptions[2].binding = 0;
+//		attributeDescriptions[2].location = 2;
+//		attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+//		attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+//
+//		return attributeDescriptions;
+//	}
 //};
 
 struct UniformBufferObject {
@@ -133,32 +118,38 @@ private:
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
+
 	VkCommandPool commandPool;
-	std::vector<VkCommandBuffer> commandBuffers;	// we have commandBuffer for every Framebuffer
+	std::vector<VkCommandBuffer> commandBuffers;	// command buffer for rendering / one for every Framebuffer
+
 	const int MAX_FRAMES_IN_FLIGHT = 2;			// frames to process concurrently
 	size_t currentFrame = 0;
 	std::vector<VkSemaphore> imageAvailableSemaphores;
 	std::vector<VkSemaphore> renderFinishedSemaphores;
 	std::vector<VkFence> inFlightFences;		// to sync cpu / gpu
 	std::vector<VkFence> imagesInFlight;		// keep images in order
-	VkBuffer vertexBuffer;
-	VkDeviceMemory vertexBufferMemory;		// gpu memory for vertexBuffer
-	VkBuffer indexBuffer;
-	VkDeviceMemory indexBufferMemory;
-	std::vector<VkBuffer> uniformBuffers;
-	std::vector<VkDeviceMemory> uniformBuffersMemory;
-	VkDescriptorPool descriptorPool;
-	std::vector<VkDescriptorSet> descriptorSets;	// specifies uniforms for rendering object (MVP and texture) / implicitly freed
-	VkImage textureImage;						// more efficient to use image than buffer for textures
-	VkDeviceMemory textureImageMemory;
-	VkImageView textureImageView;
-	VkSampler textureSampler;
+
+	//VkBuffer vertexBuffer1;
+	//VkDeviceMemory vertexBufferMemory1;		// gpu memory for vertexBuffer
+	//VkBuffer indexBuffer1;
+	//VkDeviceMemory indexBufferMemory1;
+	//std::vector<VkBuffer> uniformBuffers1;
+	//std::vector<VkDeviceMemory> uniformBuffersMemory1;
+	//VkDescriptorPool descriptorPool1;
+	//std::vector<VkDescriptorSet> descriptorSets1;	// specifies uniforms for rendering object (MVP and texture) / implicitly freed
+
+	//VkImage textureImage1;						// more efficient to use image than buffer for textures
+	//VkDeviceMemory textureImageMemory1;
+	//VkImageView textureImageView1;
+	//VkSampler textureSampler1;
+
+	std::vector<RenderObject> renderObjects;
+
 	VkImage depthImage;
 	VkDeviceMemory depthImageMemory;
 	VkImageView depthImageView;
 
-	std::vector<Vertex> vertices;
-	std::vector<uint32_t> indices;
+	//uint32_t indexCount;
 
 	bool framebufferResized = false;		// flag if window resized (will recreate swapchain)
 
@@ -194,15 +185,53 @@ private:
 		createCommandPool();
 		createDepthResources();
 		createFramebuffers();
-		createTextureImage();
-		createTextureImageView();
-		createTextureSampler();
-		loadModel();
-		createVertexBuffer();
-		createIndexBuffer();
-		createUniformBuffers();
-		createDescriptorPool();
-		createDescriptorSets();
+
+		//renderObjects.resize(1);
+
+		//createTextureImage(renderObjects[0].textureImage, renderObjects[0].textureImageMemory, "textures/water_texture.png");
+		//createTextureImageView(renderObjects[0].textureImageView, renderObjects[0].textureImage);
+		//createTextureSampler(renderObjects[0].textureSampler);
+
+		//loadModel(renderObjects[0].vertices, renderObjects[0].indices, "models/water.obj");
+		//createVertexBuffer(renderObjects[0].vertexBuffer, renderObjects[0].vertexBufferMemory, renderObjects[0].vertices);
+		//createIndexBuffer(renderObjects[0].indexBuffer, renderObjects[0].indexBufferMemory, renderObjects[0].indices);
+		//indexCount = static_cast<uint32_t>(renderObjects[0].indices.size());
+		//createUniformBuffers(renderObjects[0].uniformBuffers, renderObjects[0].uniformBuffersMemory);
+		//createDescriptorPool(renderObjects[0].descriptorPool);
+		//createDescriptorSets(renderObjects[0].descriptorSets, renderObjects[0].descriptorPool, renderObjects[0].uniformBuffers, renderObjects[0].textureImageView, renderObjects[0].textureSampler);
+
+		RenderObject renderObject1;
+		createTextureImage(renderObject1.textureImage, renderObject1.textureImageMemory, "textures/water_texture.png");
+		createTextureImageView(renderObject1.textureImageView, renderObject1.textureImage);
+		createTextureSampler(renderObject1.textureSampler);
+		loadModel(renderObject1.vertices, renderObject1.indices, "models/water.obj");
+		createVertexBuffer(renderObject1.vertexBuffer, renderObject1.vertexBufferMemory, renderObject1.vertices);
+		createIndexBuffer(renderObject1.indexBuffer, renderObject1.indexBufferMemory, renderObject1.indices);
+		createUniformBuffers(renderObject1.uniformBuffers, renderObject1.uniformBuffersMemory);
+		createDescriptorPool(renderObject1.descriptorPool);
+		createDescriptorSets(renderObject1.descriptorSets, renderObject1.descriptorPool, renderObject1.uniformBuffers, renderObject1.textureImageView, renderObject1.textureSampler);
+		renderObject1.modelMatrix = glm::mat4(1.0f);
+		renderObjects.push_back(renderObject1);
+
+		RenderObject renderObject2;
+		createTextureImage(renderObject2.textureImage, renderObject2.textureImageMemory, "textures/quad.png");
+		createTextureImageView(renderObject2.textureImageView, renderObject2.textureImage);
+		createTextureSampler(renderObject2.textureSampler);
+		loadModel(renderObject2.vertices, renderObject2.indices, "models/quad.obj");
+		createVertexBuffer(renderObject2.vertexBuffer, renderObject2.vertexBufferMemory, renderObject2.vertices);
+		createIndexBuffer(renderObject2.indexBuffer, renderObject2.indexBufferMemory, renderObject2.indices);
+		createUniformBuffers(renderObject2.uniformBuffers, renderObject2.uniformBuffersMemory);
+		createDescriptorPool(renderObject2.descriptorPool);
+		createDescriptorSets(renderObject2.descriptorSets, renderObject2.descriptorPool, renderObject2.uniformBuffers, renderObject2.textureImageView, renderObject2.textureSampler);
+		renderObject2.modelMatrix = glm::mat4(1.0f);
+		renderObject2.modelMatrix = glm::rotate(renderObject2.modelMatrix, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		renderObject2.modelMatrix = glm::scale(renderObject2.modelMatrix, glm::vec3(0.2f));
+		renderObject2.modelMatrix = glm::translate(renderObject2.modelMatrix, glm::vec3(0.0, 2.0, 10.0));
+		//renderObject2.modelMatrix = glm::rotate(renderObject2.modelMatrix, glm::radians(45.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
+		renderObjects.push_back(renderObject2);
+
+		std::cout << "render objects size " << renderObjects.size() << "\n";
+
 		createCommandBuffers();
 		createSyncObjects();
 	}
@@ -210,9 +239,22 @@ private:
 	void mainLoop() {
 		while (!glfwWindowShouldClose(window)) {
 			glfwPollEvents();
+			gameLogic();
 			drawFrame();
 		}
 		vkDeviceWaitIdle(device);
+	}
+
+	std::chrono::steady_clock::time_point prevTime;
+	std::chrono::steady_clock::time_point currTime;
+
+	void gameLogic() {
+		prevTime = currTime;
+		currTime = std::chrono::high_resolution_clock::now();
+		float time = std::chrono::duration<float, std::chrono::seconds::period>(currTime - prevTime).count();
+
+		renderObjects[0].modelMatrix = glm::rotate(renderObjects[0].modelMatrix, time * glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		//renderObjects[1].modelMatrix = glm::rotate(renderObjects[1].modelMatrix, time * glm::radians(45.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 	}
 
 	void drawFrame() {
@@ -234,7 +276,8 @@ private:
 			vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
 		imagesInFlight[imageIndex] = inFlightFences[currentFrame];		// mark image as now being in use by this frame
 
-		updateUniformBuffer(imageIndex);
+		updateUniformBuffer(imageIndex, renderObjects[0]);
+		updateUniformBuffer(imageIndex, renderObjects[1]);
 		
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -279,39 +322,35 @@ private:
 		currentFrame = (currentFrame + 1) & MAX_FRAMES_IN_FLIGHT;
 	}
 
-	void updateUniformBuffer(uint32_t currentImage) {
-		static auto startTime = std::chrono::high_resolution_clock::now();
-		auto currentTime = std::chrono::high_resolution_clock::now();
-		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+	void updateUniformBuffer(uint32_t currentImage, RenderObject renderObject) {
 
 		UniformBufferObject ubo{};
-		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		//ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(degrees), glm::vec3(0.0f, 0.0f, 1.0f));
+		ubo.model = renderObject.modelMatrix;
+		ubo.view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
 		ubo.proj[1][1] *= -1;	// was made for opengl which has Y coord inverted vs Vulkan
 
 		void* data;
-		vkMapMemory(device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
+		vkMapMemory(device, renderObject.uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
-		vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
+		vkUnmapMemory(device, renderObject.uniformBuffersMemory[currentImage]);
 	}
 
 	void cleanup() {
 		cleanupSwapChain();
 
-		vkDestroySampler(device, textureSampler, nullptr);
-		vkDestroyImageView(device, textureImageView, nullptr);
-
-		vkDestroyImage(device, textureImage, nullptr);
-        vkFreeMemory(device, textureImageMemory, nullptr);
-
+		for (int i = 0; i < renderObjects.size(); i++) {
+			vkDestroySampler(device, renderObjects[i].textureSampler, nullptr);
+			vkDestroyImageView(device, renderObjects[i].textureImageView, nullptr);
+			vkDestroyImage(device, renderObjects[i].textureImage, nullptr);
+			vkFreeMemory(device, renderObjects[i].textureImageMemory, nullptr);
+			vkDestroyBuffer(device, renderObjects[i].indexBuffer, nullptr);
+			vkFreeMemory(device, renderObjects[i].indexBufferMemory, nullptr);
+			vkDestroyBuffer(device, renderObjects[i].vertexBuffer, nullptr);
+			vkFreeMemory(device, renderObjects[i].vertexBufferMemory, nullptr);
+		}
 		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-
-		vkDestroyBuffer(device, indexBuffer, nullptr);
-		vkFreeMemory(device, indexBufferMemory, nullptr);
-
-		vkDestroyBuffer(device, vertexBuffer, nullptr);
-		vkFreeMemory(device, vertexBufferMemory, nullptr);
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -340,11 +379,13 @@ private:
 		for (auto imageView : swapChainImageViews)
 			vkDestroyImageView(device, imageView, nullptr);
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
-		for (size_t i = 0; i < swapChainImages.size(); i++) {
-			vkDestroyBuffer(device, uniformBuffers[i], nullptr);
-			vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
+		for (int x = 0; x < renderObjects.size(); x++) {
+			for (size_t i = 0; i < swapChainImages.size(); i++) {
+				vkDestroyBuffer(device, renderObjects[x].uniformBuffers[i], nullptr);
+				vkFreeMemory(device, renderObjects[x].uniformBuffersMemory[i], nullptr);
+			}
+			vkDestroyDescriptorPool(device, renderObjects[x].descriptorPool, nullptr);
 		}
-		vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 	}
 
 	// create vulkan instance
@@ -608,9 +649,11 @@ private:
 		createGraphicsPipeline();	// viewport and scissor rect are changed
 		createDepthResources();
 		createFramebuffers();		// depend directly on swapchain images
-		createUniformBuffers();		// depends on number of swapchain images
-		createDescriptorPool();		// depends on number of swapchain images
-		createDescriptorSets();
+		for (int i = 0; i < renderObjects.size(); i++) {
+			createUniformBuffers(renderObjects[i].uniformBuffers, renderObjects[i].uniformBuffersMemory);		// depends on number of swapchain images
+			createDescriptorPool(renderObjects[i].descriptorPool);		// depends on number of swapchain images
+			createDescriptorSets(renderObjects[i].descriptorSets, renderObjects[i].descriptorPool, renderObjects[i].uniformBuffers, renderObjects[i].textureImageView, renderObjects[i].textureSampler);		// depends on number of swapchain images
+		}
 		createCommandBuffers();		// depend directly on swapchain images
 	}
 
@@ -986,10 +1029,10 @@ private:
 		return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 	}
 
-	void createTextureImage() {
+	void createTextureImage(VkImage& textureImage, VkDeviceMemory& textureImageMemory, std::string imagePath) {
 		// load jpg from disk to ram
 		int texWidth, texHeight, texChannels;
-		stbi_uc* pixels = stbi_load(TEXTURE_PATH.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+		stbi_uc* pixels = stbi_load(imagePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 		if (!pixels)
 			throw std::runtime_error("failed to load texture image!");
@@ -1104,12 +1147,12 @@ private:
 
 	}
 
-	void createTextureImageView() {
+	void createTextureImageView(VkImageView& textureImageView, VkImage& textureImage) {
 		textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
 
 	// create distinct object to extract colors from texture
-	void createTextureSampler() {
+	void createTextureSampler(VkSampler& textureSampler) {
 		VkSamplerCreateInfo samplerInfo{};
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 		samplerInfo.magFilter = VK_FILTER_LINEAR;
@@ -1150,13 +1193,13 @@ private:
 	}
 
 	// load an obj model into array of vertices, etc.
-	void loadModel() {
+	void loadModel(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, std::string modelPath) {
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
 		std::string warn, err;
 
-		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str())) {
+		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, modelPath.c_str())) {
 			throw std::runtime_error(warn + err);
 		}
 
@@ -1175,7 +1218,12 @@ private:
 					1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
 				};
 
-				vertex.color = { 1.0f, 1.0f, 1.0f };
+				//vertex.color = { 1.0f, 1.0f, 1.0f };
+				vertex.color = { 
+					attrib.normals[3 * index.normal_index + 0], 
+					attrib.normals[3 * index.normal_index + 1],
+					attrib.normals[3 * index.normal_index + 2]
+				};
 
 				vertices.push_back(vertex);
 
@@ -1184,7 +1232,7 @@ private:
 		}
 	}
 
-	void createVertexBuffer() {
+	void createVertexBuffer(VkBuffer& vertexBuffer, VkDeviceMemory& vertexBufferMemory, std::vector<Vertex>& vertices) {
 		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
 		// create cpu accessable staging vertex buffer
@@ -1206,7 +1254,7 @@ private:
 		vkFreeMemory(device, stagingBufferMemory, nullptr);
 	}
 
-	void createIndexBuffer() {
+	void createIndexBuffer(VkBuffer& indexBuffer, VkDeviceMemory& indexBufferMemory, std::vector<uint32_t>& indices) {
 		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
 		VkBuffer stagingBuffer;
@@ -1225,7 +1273,7 @@ private:
 		vkFreeMemory(device, stagingBufferMemory, nullptr);
 	}
 
-	void createUniformBuffers() {
+	void createUniformBuffers(std::vector<VkBuffer>& uniformBuffers, std::vector<VkDeviceMemory>& uniformBuffersMemory) {
 		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
 		uniformBuffers.resize(swapChainImages.size());
@@ -1236,7 +1284,7 @@ private:
 		}
 	}
 
-	void createDescriptorPool() {
+	void createDescriptorPool(VkDescriptorPool& descriptorPool) {
 		std::array<VkDescriptorPoolSize, 2> poolSizes{};
 		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
@@ -1254,7 +1302,7 @@ private:
 	}
 
 	// configures information for rendering object like MVP and texture
-	void createDescriptorSets() {
+	void createDescriptorSets(std::vector<VkDescriptorSet>& descriptorSets, VkDescriptorPool& descriptorPool, std::vector<VkBuffer>& uniformBuffers, VkImageView& textureImageView, VkSampler& textureSampler) {
 		std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size(), descriptorSetLayout);
 		VkDescriptorSetAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -1382,14 +1430,19 @@ private:
 			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-			VkBuffer vertexBuffers[] = { vertexBuffer };
+			VkBuffer vertexBuffers[] = { renderObjects[0].vertexBuffer };
+
 			VkDeviceSize offsets[] = { 0 };
 			vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-			vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
+			vkCmdBindIndexBuffer(commandBuffers[i], renderObjects[0].indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &renderObjects[0].descriptorSets[i], 0, nullptr);
+			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(renderObjects[0].indices.size()) , 1, 0, 0, 0);
 
-			//vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);	// (..., vertexCount, instanceCount (1 to not use), vertex offset in buffer, offset of instance)
-			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+			vertexBuffers[0] = renderObjects[1].vertexBuffer;
+			vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+			vkCmdBindIndexBuffer(commandBuffers[i], renderObjects[1].indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &renderObjects[1].descriptorSets[i], 0, nullptr);
+			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(renderObjects[1].indices.size()), 1, 0, 0, 0);
 
 			vkCmdEndRenderPass(commandBuffers[i]);
 			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)

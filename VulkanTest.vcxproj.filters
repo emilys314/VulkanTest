@@ -36,9 +36,18 @@
     <ClInclude Include="VulkanTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HelloTriangleApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -63,6 +72,9 @@
     <Image Include="textures\viking_room.png">
       <Filter>Source Files\textures</Filter>
     </Image>
+    <Image Include="textures\water_texture.png">
+      <Filter>Source Files\textures</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.vert">
@@ -71,10 +83,5 @@
     <None Include="shaders\shader.frag">
       <Filter>Source Files\shaders</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="models\viking_room.obj">
-      <Filter>Source Files\models</Filter>
-    </Object>
   </ItemGroup>
 </Project>

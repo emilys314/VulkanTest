@@ -168,12 +168,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
+    <ClInclude Include="RenderObject.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Vertex.h" />
     <ClInclude Include="VulkanTest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HelloTriangleApplication.cpp" />
+    <ClCompile Include="RenderObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VulkanTest.rc" />
@@ -183,14 +186,12 @@
     <Image Include="textures\bernstein.jpg" />
     <Image Include="textures\texture.jpg" />
     <Image Include="textures\viking_room.png" />
+    <Image Include="textures\water_texture.png" />
     <Image Include="VulkanTest.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.frag" />
     <None Include="shaders\shader.vert" />
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="models\viking_room.obj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
